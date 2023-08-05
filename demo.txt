@@ -12,7 +12,6 @@ public class Tutorial {
     public static double CPY = 7.06;
     public static double CHF = 0.87;
 
-    // Convert static method
     public static double convert (double c1, double c2, double amount) {
         double conversion;
         conversion = (c2/c1) * amount;
@@ -20,14 +19,12 @@ public class Tutorial {
     }
 
     public static void main(String[] args) {
-        // Declare variables
         Scanner sc = new Scanner(System.in);
         String input1;
         String input2;
         double input3;
         double conversion;
 
-        // Map currency names to their values
         Map<String, Double> currencyMap = new HashMap<>();
         currencyMap.put("USD", USD);
         currencyMap.put("EUR", EUR);
@@ -37,7 +34,6 @@ public class Tutorial {
         currencyMap.put("CPY", CPY);
         currencyMap.put("CHF", CHF);
 
-        // Enter currencies and amount
         System.out.println("What is your currency?");
         input1 = sc.nextLine();
         System.out.println("To which currency do you want to convert to?");
@@ -45,7 +41,6 @@ public class Tutorial {
         System.out.println("How much currency do you want to convert?");
         input3 = sc.nextDouble();
 
-        // Get result and display it
         conversion = convert(currencyMap.get(input1), currencyMap.get(input2), input3);
         System.out.println("For " + input3 + " " + input1 + ", you have " + conversion + " " + input2);
     }
