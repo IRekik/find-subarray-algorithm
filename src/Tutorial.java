@@ -1,88 +1,92 @@
-import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Tutorial {
-    public static void main(String[] args) {
-        // Initialize variables and lists
-        String line = "";
-        List <String> nameList = new ArrayList<>();
-        List <Integer> salaryList = new ArrayList<>();
-        List <Integer> ageList = new ArrayList<>();
-        int numberOfEntries = 0;
 
-        // Open file and read line by line
-        try {
-                File csvFile = new File("Livre.csv");
-                Scanner sc = new Scanner(csvFile);
-                boolean firstFlag = true;
-                while (sc.hasNextLine()) {
-                    line = sc.nextLine() + "\n";
-                    if (firstFlag) {
-                        firstFlag = false;
-                        continue;
-                    }
-                    // Split information and add it to its list
-                    String [] data = line.split(",");
-                    String col1 = data[0].substring(1, data[0].length() - 1);
-                    int col2 = Integer.parseInt(data[1].substring(1, data[1].length() - 1));
-                    int col3 = Integer.parseInt(data[2].substring(1, data[2].length() - 2));
-                    nameList.add(col1);
-                    salaryList.add(col2);
-                    ageList.add(col3);
-                    numberOfEntries++;
+    // This method finds subarrays that are present in two list (biggerArray, smallerArray)
+    // and not present in a third list (excludedArray)
+    public static List<List> findSubArrays (List biggerArray, List smallerArray, List excludedArray) {
+        boolean hasFoundMatch = false;
+
+        List <Integer> subArray = new ArrayList();
+        List <List> subArrayList = new ArrayList();
+
+        // Iterate through bigger list and see if item is present in smaller array
+        for (int i = 0; i < biggerArray.size(); i++) {
+            // if bigger array item is in smaller array and not in excludedArray, activates hasFoundMatch
+            if (smallerArray.contains(biggerArray.get(i)) && !excludedArray.contains(biggerArray.get(i))) {
+                subArray.add((Integer) biggerArray.get(i));
+                hasFoundMatch = true;
+                // if we reached the end of the list and there is a match
+                if (i == biggerArray.size() - 1) {
+                    subArrayList.add(new ArrayList(subArray));
                 }
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        // Average age at the company
-        double avgAge = ageList.stream()
-                .mapToInt(val -> val)
-                .average()
-                .orElse(0.0);
-        avgAge = Math.round(avgAge);
-        System.out.println("Average age at the company: " + avgAge);
-        System.out.println();
-
-        // Average salary at the company
-        double avgSalary = 0;
-        for (Integer integer : salaryList) {
-            avgSalary = avgSalary + integer;
-        }
-        avgSalary = avgSalary / salaryList.size();
-        System.out.println("Average salary at the company: " + avgSalary);
-        System.out.println();
-
-        // Employee names in alphabetical order
-        List sortedNameList = Arrays.asList(
-                nameList.stream().sorted(
-                        (s1, s2) -> s1.compareToIgnoreCase(s2)
-                ).toArray(String[]::new)
-        );
-        System.out.println("The list of employees in alphabetical order:");
-        System.out.println(sortedNameList);
-        System.out.println();
-
-        // How many employees make less than the average salary
-        int lessThanAvg = 0;
-        for (int i = 0; i < salaryList.size(); i++) {
-            if (salaryList.get(i) < avgSalary) {
-                lessThanAvg++;
+            }
+            // else if previously found elements of biggerArray U smallerArray, started inserting, and
+            // found the first element that no longer match, stop insertion and disable hasFoundMatch
+            else if (!smallerArray.contains(biggerArray.get(i)) && hasFoundMatch) {
+                subArrayList.add(new ArrayList(subArray));
+                subArray.clear();
+                hasFoundMatch = false;
             }
         }
-        System.out.println("A total of " + lessThanAvg + " employees make less than the average salary of " + avgSalary);
-        System.out.println();
 
-        // Find the employee who makes $68,000
-        int index = -1;
-        for (int i = 0; i < salaryList.size(); i++) {
-            if (salaryList.get(i) == 68000) {
-                index = 1;
+        return subArrayList;
+    }
+
+    // This method converts a List of ints to an Array of ints
+    public static int [] convertList (List list) {
+        int [] subArray = new int[list.size()];
+        for (int i = 0; i < (int)list.size(); i++) {
+            subArray[i] = (int) list.get(i);
+        }
+        return subArray;
+    }
+
+    // This method finds the index of the biggest subArray List
+    public static int findIndexOfBiggestList(List<List> subArrayList) {
+        int biggestListSize = subArrayList.get(0).size();
+        int listIndex = 0;
+        for (int i = 1; i < subArrayList.size(); i++) {
+            if (subArrayList.get(i).size() > biggestListSize) {
+                listIndex = i;
             }
         }
-        System.out.println("The employee who makes $68,000 is " + nameList.get(index));
+        return listIndex;
+    }
+    
+    public static int [] algo (int [] a1, int [] a2, int [] a3) {
+        List<Integer> biggerArray;
+        List<Integer> smallerArray;
+        List<Integer> excludedArray = Arrays.stream(a3).boxed().collect(Collectors.toList());
+
+        // Compares which list is the biggest between a1 and a2
+        if (a1.length > a2.length) {
+            biggerArray = Arrays.stream(a1).boxed().collect(Collectors.toList());
+            smallerArray = Arrays.stream(a2).boxed().collect(Collectors.toList());
+        }
+        else {
+            biggerArray = Arrays.stream(a2).boxed().collect(Collectors.toList());
+            smallerArray = Arrays.stream(a1).boxed().collect(Collectors.toList());
+        }
+
+        List <List> subArrayList = new ArrayList();
+        subArrayList = findSubArrays(biggerArray, smallerArray, excludedArray);
+
+        int listIndex = findIndexOfBiggestList(subArrayList);
+
+        int [] subArray = convertList(subArrayList.get(listIndex));
+        
+        return subArray;
+    }
+
+    public static void main(String[] args) {
+        int [] a1 = {1, 2, 3, 4, 5, 6, 7};
+        int [] a2 = {2, 3, 4, 6, 7};
+        int [] a3 = {4, 5};
+        int [] r = algo(a1, a2, a3);
+        for (int j : r) {
+            System.out.println(j);
+        }
     }
 }
